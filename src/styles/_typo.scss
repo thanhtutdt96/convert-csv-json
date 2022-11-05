@@ -1,0 +1,41 @@
+@import 'variable';
+
+.text-success {
+  color: $positive;
+}
+
+.text-primary {
+  color: $primary;
+}
+
+.text-secondary {
+  color: $secondary;
+}
+
+.text-accent {
+  color: $accent;
+}
+
+.text-error {
+  color: $negative;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 1rem;
+}
+
+.text-md {
+  font-size: 1.25rem;
+}
+
+.text-lg {
+  font-size: 1.5rem;
+}
+
+.text-xl {
+  font-size: 1.75rem;
+}
