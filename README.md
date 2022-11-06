@@ -1,32 +1,26 @@
-# Project - *Straper*
+# Project - *Data Converter*
 
-**Elegant Music App** is a modern music web app using the [Shazam Core API](https://rapidapi.com/tipsters/api/shazam-core).
+**Data Converter** is a helpful tool to convert data between different formats: CSV >< JSON.
 
-Built with Vite, React, TailwindCSS, TypeScript, Eslint, Prettier.
+Built with Vite, React, Material UI, styled-components, TypeScript, Eslint.
 
 ## Running on Local
-- Change the `.env.example` to `.env`
 - Start Vite dev server by running `yarn dev`
 
 ## Main Features
 
 The following functionalities are implemented:
-
-- [x] List out latest songs & artists based on top charts and current user location.
-- [x] List out songs filtered by genres, and related songs according to artist.
-- [x] Play, pause, adjust volume and perform other controls for any song have been listed.
-- [x] View song or artist details by click on a card.
-- [x] Search for any song.
-- [x] Loading state while waiting for the API.
-- [x] Responsive on multiple screen resolutions.
+- [x] Convert imported/inputted CSV data to JSON data and vice versa.
+- [x] Copy data to clipboard.
+- [x] Export data & save to file.
 
 ## Release
-[Elegant Music App](https://elegant-music-app.netlify.app/)
+[Data Converter](https://data-converter-csv-json.netlify.app)
 
 
 ## License
 
-    Copyright [2016] [Tu Pham]
+    Copyright [2022] [Tu Pham]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

@@ -151,8 +151,9 @@ const Converter = () => {
     reader.onload = async ({ target }) => {
       const readData = target?.result as string;
 
-      setInputCsvData('');
+      clearInputCsv();
       setInputCsvData(readData);
+      setIsButtonCsvDisabled(false);
 
       dispatch(alert('CSV data import successfully', ToastType.SUCCESS));
     };
@@ -180,8 +181,9 @@ const Converter = () => {
     reader.onload = async ({ target }) => {
       const readData = target?.result as string;
 
-      setInputJsonData('');
+      clearInputJson();
       setInputJsonData(readData);
+      setIsButtonJsonDisabled(false);
 
       dispatch(alert('JSON data import successfully', ToastType.SUCCESS));
     };
