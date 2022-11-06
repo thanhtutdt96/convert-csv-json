@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { csvToJSON, jsonToCsv } from 'helpers/utils';
 import FlashOffIcon from '@mui/icons-material/FlashOff';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
@@ -72,17 +72,20 @@ const Converter = () => {
   const [isButtonCsvDisabled, setIsButtonCsvDisabled] = useState(false);
   const [isButtonJsonDisabled, setIsButtonJsonDisabled] = useState(false);
 
-  const errorHandler = (error: unknown) => {
-    let errorMessage = '';
+  const errorHandler = useCallback(
+    (error: unknown) => {
+      let errorMessage = '';
 
-    if (error instanceof SyntaxError) {
-      errorMessage = error.message;
-    } else {
-      errorMessage = 'There is an unknown issue';
-    }
+      if (error instanceof SyntaxError) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = 'There is an unknown issue';
+      }
 
-    dispatch(alert(errorMessage, ToastType.ERROR));
-  };
+      dispatch(alert(errorMessage, ToastType.ERROR));
+    },
+    [dispatch],
+  );
 
   const onInputCsvDataChange = (data: string) => {
     setIsButtonCsvDisabled(false);
@@ -96,7 +99,7 @@ const Converter = () => {
     setInputJsonData(data);
   };
 
-  const handleCsvToJsonClick = () => {
+  const handleCsvToJsonClick = useCallback(() => {
     try {
       const newData = csvToJSON(inputCsvData);
 
@@ -106,9 +109,9 @@ const Converter = () => {
     } catch (error) {
       errorHandler(error);
     }
-  };
+  }, [errorHandler, inputCsvData]);
 
-  const handleJsonToCsvClick = () => {
+  const handleJsonToCsvClick = useCallback(() => {
     try {
       const newData = jsonToCsv(inputJsonData);
 
@@ -118,7 +121,7 @@ const Converter = () => {
     } catch (error: unknown) {
       errorHandler(error);
     }
-  };
+  }, [errorHandler, inputJsonData]);
 
   const clearInputCsv = () => {
     setInputCsvData('');

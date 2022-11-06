@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { exportData } from 'helpers/utils';
 import { Clear, ContentCopy, Save } from '@mui/icons-material';
 import { Button } from '@mui/material';
@@ -29,19 +29,19 @@ const ConverterActions: React.FC<Props> = ({
 }) => {
   const dispatch = useAppDispatch();
 
-  const handleCopy = () => {
+  const handleCopy = useCallback(() => {
     void navigator.clipboard.writeText(content || '');
 
     dispatch(alert('Content copied', ToastType.SUCCESS));
-  };
+  }, [content, dispatch]);
 
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     try {
       exportData(content, exportFileName);
     } catch (error: unknown) {
       errorHandler(error);
     }
-  };
+  }, [content, errorHandler, exportFileName]);
 
   return (
     <WrapperStyled>
