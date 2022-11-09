@@ -1,7 +1,8 @@
-import { Alert, Container, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { Alert, Container, Typography } from '@mui/material';
 import logo from 'assets/logo.png';
 import Converter from 'components/Converter';
-import { useAppSelector } from 'hooks';
+import { useAppSelector } from 'hooks/useRedux';
+import useResponsive from 'hooks/useResponsive';
 import styled from 'styled-components';
 import { ToastType } from 'types/Common';
 
@@ -17,9 +18,7 @@ const ContainerStyled = styled(Container)`
 `;
 
 const Home = () => {
-  const theme = useTheme();
-  const isMobileScreen = useMediaQuery(theme.breakpoints.down('md'));
-
+  const { isMobileScreen } = useResponsive();
   const { isToastVisible, toastMessage, toastType } = useAppSelector((state) => state.toast);
 
   return (

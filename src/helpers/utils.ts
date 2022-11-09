@@ -11,8 +11,6 @@ export const csvToJSON = (csv: string) => {
     ?.split(ignoreCommasInQuotesPattern)
     ?.map((line) => removeDoubleQuotes(line?.trim()));
 
-  console.log(headers);
-
   for (let i = 1; i < lines.length; i++) {
     if (lines[i] == '\n' || lines[i].trim().length == 0) {
       continue;
@@ -22,8 +20,6 @@ export const csvToJSON = (csv: string) => {
     const currentLine = lines[i]
       ?.split(ignoreCommasInQuotesPattern)
       ?.map((line) => removeDoubleQuotes(line?.trim()));
-
-    console.log(currentLine);
 
     for (let j = 0; j < headers.length; j++) {
       const objectHeader = headers[j]?.toLowerCase();

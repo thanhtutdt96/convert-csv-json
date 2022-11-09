@@ -1,15 +1,15 @@
-import React, { useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import { exportData } from 'helpers/utils';
 import { Clear, ContentCopy, Save } from '@mui/icons-material';
 import { Button } from '@mui/material';
-import { useAppDispatch } from 'hooks';
+import { useAppDispatch } from 'hooks/useRedux';
 import { alert } from 'redux/toastSlice';
 import styled from 'styled-components';
 import { ToastType } from 'types/Common';
 
 type Props = {
   content: string;
-  exportFileName: string;
+  exportFileType: string;
   onClearInput: () => void;
   errorHandler: (error: unknown) => void;
 };
@@ -24,7 +24,7 @@ const WrapperStyled = styled.div`
 const ConverterActions: React.FC<Props> = ({
   content,
   onClearInput,
-  exportFileName,
+  exportFileType,
   errorHandler,
 }) => {
   const dispatch = useAppDispatch();
@@ -37,17 +37,18 @@ const ConverterActions: React.FC<Props> = ({
 
   const handleExport = useCallback(() => {
     try {
-      exportData(content, exportFileName);
+      exportData(content, `export_${Date.now()}.${exportFileType}`);
     } catch (error: unknown) {
       errorHandler(error);
     }
-  }, [content, errorHandler, exportFileName]);
+  }, [content, errorHandler, exportFileType]);
 
   return (
     <WrapperStyled>
       <Button
         variant="contained"
         color="warning"
+        size="small"
         title="Copy"
         fullWidth={false}
         onClick={handleCopy}
@@ -59,6 +60,7 @@ const ConverterActions: React.FC<Props> = ({
       <Button
         variant="contained"
         color="error"
+        size="small"
         title="Clear"
         fullWidth={false}
         onClick={onClearInput}
@@ -70,6 +72,7 @@ const ConverterActions: React.FC<Props> = ({
       <Button
         variant="contained"
         color="info"
+        size="small"
         title="Export"
         fullWidth={false}
         onClick={handleExport}
@@ -82,4 +85,4 @@ const ConverterActions: React.FC<Props> = ({
   );
 };
 
-export default ConverterActions;
+export default memo(ConverterActions);

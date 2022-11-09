@@ -1,10 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { csvToJSON, jsonToCsv } from 'helpers/utils';
 import FlashOffIcon from '@mui/icons-material/FlashOff';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
-import { Button, Container, Grid, TextareaAutosize, useMediaQuery, useTheme } from '@mui/material';
+import { Button, Container, Grid, TextareaAutosize } from '@mui/material';
 import ConverterActions from 'components/ConverterActions';
-import { useAppDispatch } from 'hooks';
+import { useAppDispatch } from 'hooks/useRedux';
+import useResponsive from 'hooks/useResponsive';
 import { alert } from 'redux/toastSlice';
 import styled from 'styled-components';
 import { ToastType } from 'types/Common';
@@ -60,17 +61,16 @@ const TextAreaInput = styled(TextareaAutosize)`
 const Converter = () => {
   const dispatch = useAppDispatch();
 
-  const theme = useTheme();
-  const isMobileScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const { isMobileScreen } = useResponsive();
 
-  const [inputCsvData, setInputCsvData] = useState('');
-  const [outputCsvData, setOutputCsvData] = useState('');
-
-  const [inputJsonData, setInputJsonData] = useState('');
-  const [outputJsonData, setOutputJsonData] = useState('');
+  const [inputData, setInputData] = useState('');
+  const [outputData, setOutputData] = useState('');
 
   const [isButtonCsvDisabled, setIsButtonCsvDisabled] = useState(false);
   const [isButtonJsonDisabled, setIsButtonJsonDisabled] = useState(false);
+
+  const inputCsvFileRef = useRef<HTMLInputElement | null>(null);
+  const inputJsonFileRef = useRef<HTMLInputElement | null>(null);
 
   const errorHandler = useCallback(
     (error: unknown) => {
@@ -87,50 +87,58 @@ const Converter = () => {
     [dispatch],
   );
 
-  const onInputCsvDataChange = (data: string) => {
+  const onInputDataChange = (data: string) => {
     setIsButtonCsvDisabled(false);
-    setOutputJsonData('');
-    setInputCsvData(data);
+    setInputData(data);
   };
 
-  const onOutputCsvDataChange = (data: string) => {
+  const onOutputDataChange = (data: string) => {
     setIsButtonJsonDisabled(false);
-    setOutputCsvData('');
-    setInputJsonData(data);
+    setOutputData(data);
   };
 
   const handleCsvToJsonClick = useCallback(() => {
     try {
-      const newData = csvToJSON(inputCsvData);
+      const newData = csvToJSON(inputData);
 
       setIsButtonCsvDisabled(true);
-      setOutputCsvData(newData);
-      setInputJsonData('');
+      setIsButtonJsonDisabled(false);
+      setOutputData(newData);
     } catch (error) {
       errorHandler(error);
     }
-  }, [errorHandler, inputCsvData]);
+  }, [errorHandler, inputData]);
 
   const handleJsonToCsvClick = useCallback(() => {
     try {
-      const newData = jsonToCsv(inputJsonData);
+      const newData = jsonToCsv(outputData);
 
       setIsButtonJsonDisabled(true);
-      setOutputJsonData(newData);
-      setInputCsvData('');
+      setIsButtonCsvDisabled(false);
+      setInputData(newData);
     } catch (error: unknown) {
       errorHandler(error);
     }
-  }, [errorHandler, inputJsonData]);
+  }, [errorHandler, outputData]);
 
-  const clearInputCsv = () => {
-    setInputCsvData('');
-    setOutputJsonData('');
-  };
+  const clearInputData = useCallback(() => {
+    setInputData('');
+
+    if (!inputCsvFileRef.current?.value) {
+      return;
+    }
+
+    inputCsvFileRef.current.value = '';
+  }, []);
 
   const clearInputJson = () => {
-    setInputJsonData('');
-    setOutputCsvData('');
+    setOutputData('');
+
+    if (!inputJsonFileRef.current?.value) {
+      return;
+    }
+
+    inputJsonFileRef.current.value = '';
   };
 
   const handleCsvChange = (files: FileList | null) => {
@@ -154,8 +162,7 @@ const Converter = () => {
     reader.onload = async ({ target }) => {
       const readData = target?.result as string;
 
-      clearInputCsv();
-      setInputCsvData(readData);
+      setInputData(readData);
       setIsButtonCsvDisabled(false);
 
       dispatch(alert('CSV data import successfully', ToastType.SUCCESS));
@@ -184,8 +191,7 @@ const Converter = () => {
     reader.onload = async ({ target }) => {
       const readData = target?.result as string;
 
-      clearInputJson();
-      setInputJsonData(readData);
+      setOutputData(readData);
       setIsButtonJsonDisabled(false);
 
       dispatch(alert('JSON data import successfully', ToastType.SUCCESS));
@@ -201,6 +207,7 @@ const Converter = () => {
             <label htmlFor="csv-upload">
               <span>Upload CSV</span>
               <input
+                ref={inputCsvFileRef}
                 className="form-control"
                 type="file"
                 name="csv-upload"
@@ -214,18 +221,19 @@ const Converter = () => {
             <TextAreaInput
               aria-label="input textarea"
               name="csv-input"
-              value={inputCsvData && !outputJsonData ? inputCsvData : outputJsonData}
+              value={inputData}
               minRows={isMobileScreen ? 8 : 15}
               maxRows={isMobileScreen ? 8 : 15}
               placeholder="Put your data here..."
-              onChange={(event) => onInputCsvDataChange(event.target.value)}
+              onChange={(event) => onInputDataChange(event.target.value)}
+              style={{ ...(isMobileScreen && { fontSize: '0.8rem' }) }}
               className="form-control"
             />
           </div>
           <ConverterActions
-            content={inputCsvData && !outputJsonData ? inputCsvData : outputJsonData}
-            onClearInput={() => clearInputCsv()}
-            exportFileName={`export_${Date.now()}.csv`}
+            content={inputData}
+            onClearInput={() => clearInputData()}
+            exportFileType="csv"
             errorHandler={(error) => errorHandler(error)}
           />
         </Grid>
@@ -238,7 +246,7 @@ const Converter = () => {
               onClick={handleCsvToJsonClick}
               startIcon={<FlashOnIcon />}
               fullWidth={false}
-              disabled={isButtonCsvDisabled || !inputCsvData}
+              disabled={isButtonCsvDisabled || !inputData}
               style={{ marginBottom: '1rem' }}
             >
               CSV =&gt; JSON
@@ -250,7 +258,7 @@ const Converter = () => {
               fullWidth={false}
               onClick={handleJsonToCsvClick}
               startIcon={<FlashOffIcon />}
-              disabled={isButtonJsonDisabled || !inputJsonData}
+              disabled={isButtonJsonDisabled || !outputData}
             >
               JSON =&gt; CSV
             </Button>
@@ -261,6 +269,7 @@ const Converter = () => {
             <label htmlFor="json-upload">
               <span>Upload JSON</span>
               <input
+                ref={inputJsonFileRef}
                 className="form-control"
                 type="file"
                 name="json-upload"
@@ -272,19 +281,20 @@ const Converter = () => {
           <div className="data-input">
             <span>Or paste your data here</span>
             <TextAreaInput
-              value={inputJsonData && !outputCsvData ? inputJsonData : outputCsvData}
+              value={outputData}
               aria-label="output textarea"
               minRows={isMobileScreen ? 8 : 15}
               maxRows={isMobileScreen ? 8 : 15}
               placeholder="Magic is coming..."
-              onChange={(event) => onOutputCsvDataChange(event.target.value)}
+              onChange={(event) => onOutputDataChange(event.target.value)}
+              style={{ ...(isMobileScreen && { fontSize: '0.8rem' }) }}
               className="form-control"
             />
           </div>
           <ConverterActions
-            content={inputJsonData && !outputCsvData ? inputJsonData : outputCsvData}
+            content={outputData}
             onClearInput={() => clearInputJson()}
-            exportFileName={`export_${Date.now()}.json`}
+            exportFileType="json"
             errorHandler={(error) => errorHandler(error)}
           />
         </Grid>
